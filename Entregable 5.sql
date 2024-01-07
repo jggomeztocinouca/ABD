@@ -113,6 +113,7 @@ GROUP BY Usuarios.nombre;
 
 -- DISPARADORES
 -- Disparador para verificar la disponibilidad del libro antes de un préstamo
+-- Diseñado para prevenir la inserción de un nuevo préstamo en la tabla Prestamos si el libro ya está prestado y no ha sido devuelto.
 CREATE FUNCTION verificar_disponibilidad() RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (SELECT 1 FROM Prestamos WHERE libro_id = NEW.libro_id AND fecha_devolucion IS NULL) THEN
@@ -127,6 +128,7 @@ CREATE TRIGGER verificar_disponibilidad
     FOR EACH ROW EXECUTE PROCEDURE verificar_disponibilidad();
 
 -- Disparador para actualizar el conteo de libros por autor tras cambios en la tabla Libros
+-- Encargado de actualizar la vista materializada ConteoLibrosPorAutor cada vez que se inserta o elimina un libro en la tabla Libros.
 CREATE FUNCTION actualizar_conteo() RETURNS TRIGGER AS $$
 BEGIN
     REFRESH MATERIALIZED VIEW ConteoLibrosPorAutor;
